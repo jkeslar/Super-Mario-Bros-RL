@@ -26,6 +26,9 @@ DISPLAY = True
 CKPT_SAVE_INTERVAL = 5000
 NUM_OF_EPISODES = 50_000
 
+#Don't save high rewards less than 1000
+high_reward = 1000
+
 env = gym_super_mario_bros.make(ENV_NAME, render_mode='human' if DISPLAY else 'rgb', apply_api_compatibility=True)
 env = JoypadSpace(env, RIGHT_ONLY)
 
@@ -64,7 +67,11 @@ for i in range(NUM_OF_EPISODES):
 
     if SHOULD_TRAIN and (i + 1) % CKPT_SAVE_INTERVAL == 0:
         agent.save_model(os.path.join(model_path, "model_" + str(i + 1) + "_iter.pt"))
-
+    
+    if total_reward > high_reward:
+        agent.save_model(os.path.join(model_path, "model_" + str(int(total_reward)) + "_reward.pt"))
+        high_reward = total_reward
+    
     print("Total reward:", total_reward)
 
 env.close()
